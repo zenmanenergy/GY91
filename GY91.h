@@ -6,7 +6,7 @@
 
 #include <SPI.h>
 #include <Wire.h>
-
+#define PI 3.1415926535897932384626433832795
 #define MS5637_RESET      0x1E
 #define MS5637_CONVERT_D1 0x40
 #define MS5637_CONVERT_D2 0x50
@@ -179,7 +179,7 @@
 class GY91
 {
   protected:
-    boolean SerialDebug;
+    bool SerialDebug;
     
     
     enum Ascale {
@@ -263,7 +263,6 @@ class GY91
     // These are the free parameters in the Mahony filter and fusion scheme, Kp
     // for proportional feedback, Ki for integral
     
-    
     float GyroMeasError = PI * (40.0f / 180.0f);
     // gyroscope measurement drift in rad/s/s (start at 0.0 deg/s/s)
     float GyroMeasDrift = PI * (0.0f  / 180.0f);
@@ -291,7 +290,7 @@ class GY91
     float q[4] = {1.0f, 0.0f, 0.0f, 0.0f};
     float lin_ax, lin_ay, lin_az;
   public:
-    void begin(boolean debug);
+    void begin(bool debug);
     void update();
 
     

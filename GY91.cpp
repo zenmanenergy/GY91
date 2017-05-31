@@ -1,64 +1,67 @@
 #include "GY91.h"
-#include "Wire.h"   
+#include "Wire.h"
+#include "Arduino.h"  
 #include <SPI.h>
 
     
-void GY91::begin(boolean debug){
+void GY91::begin(bool debug){
   SerialDebug=debug;
   
   if (SerialDebug==true){
-    Serial.println("Debug ON");
-    Serial.println("begin");
+    //Serial.println("Debug ON");
+    //Serial.println("begin");
   }
-  byte c = readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
-  if (c != 0x71){
+  //byte c = readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
+  if (readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250) != 0x71){
     errorMessage="GY-91 not connected properly";
     if (SerialDebug==true){
-      Serial.print("MPU9250 I AM "); Serial.print(c, HEX); Serial.print(" I should be "); Serial.println(0x71, HEX);
-      Serial.print("MPU9250_ADDRESS "); Serial.print(MPU9250_ADDRESS, HEX); Serial.println(0x68, HEX);
-      Serial.print("WHO_AM_I_MPU9250 "); Serial.print(WHO_AM_I_MPU9250, HEX); Serial.println(0x75, HEX);
+      //Serial.print("MPU9250 I AM "); Serial.print(c, HEX); Serial.print(" I should be "); Serial.println(0x71, HEX);
+     // Serial.print("MPU9250_ADDRESS "); Serial.print(MPU9250_ADDRESS, HEX); Serial.println(0x68, HEX);
+     // Serial.print("WHO_AM_I_MPU9250 "); Serial.print(WHO_AM_I_MPU9250, HEX); Serial.println(0x75, HEX);
     }
   } else{
     if (SerialDebug==true){
-      Serial.println("GY-91 is online");
+     // Serial.println("GY-91 is online");
     }
     float SelfTest[6]; 
     MPU9250SelfTest(SelfTest); // Start by performing self test and reporting values
     if (SerialDebug==true){
-      Serial.print("x-axis self test: acceleration trim within : "); Serial.print(SelfTest[0],1); Serial.println("% of factory value");
+      /*
+       * Serial.print("x-axis self test: acceleration trim within : "); Serial.print(SelfTest[0],1); Serial.println("% of factory value");
       Serial.print("y-axis self test: acceleration trim within : "); Serial.print(SelfTest[1],1); Serial.println("% of factory value");
       Serial.print("z-axis self test: acceleration trim within : "); Serial.print(SelfTest[2],1); Serial.println("% of factory value");
       Serial.print("x-axis self test: gyration trim within : "); Serial.print(SelfTest[3],1); Serial.println("% of factory value");
       Serial.print("y-axis self test: gyration trim within : "); Serial.print(SelfTest[4],1); Serial.println("% of factory value");
       Serial.print("z-axis self test: gyration trim within : "); Serial.print(SelfTest[5],1); Serial.println("% of factory value");
       
+       */
     }
     getAres();
     getGres();
     getMres();
     accelgyrocalMPU9250(gyroBias, accelBias); // Calibrate gyro and accelerometers, load biases in bias registers
     if (SerialDebug==true){
-      Serial.println("accel biases (mg)"); Serial.println(1000.*accelBias[0]); Serial.println(1000.*accelBias[1]); Serial.println(1000.*accelBias[2]);
-      Serial.println("gyro biases (dps)"); Serial.println(gyroBias[0]); Serial.println(gyroBias[1]); Serial.println(gyroBias[2]);
+     // Serial.println("accel biases (mg)"); Serial.println(1000.*accelBias[0]); Serial.println(1000.*accelBias[1]); Serial.println(1000.*accelBias[2]);
+      //Serial.println("gyro biases (dps)"); Serial.println(gyroBias[0]); Serial.println(gyroBias[1]); Serial.println(gyroBias[2]);
     }
     initMPU9250();
     if (SerialDebug==true){
-      Serial.println("MPU9250 initialized for active data mode....");
+      //Serial.println("MPU9250 initialized for active data mode....");
     }
-    byte d = readByte(AK8963_ADDRESS, WHO_AM_I_AK8963);  // Read WHO_AM_I register for AK8963
-    if (d !=0x48){
+    //byte d = readByte(AK8963_ADDRESS, WHO_AM_I_AK8963);  // Read WHO_AM_I register for AK8963
+    if (readByte(AK8963_ADDRESS, WHO_AM_I_AK8963) !=0x48){
       errorMessage="GY-91 - AK8963 magnetometer not connected properly";
       if (SerialDebug==true){
-        Serial.print("AK8963 "); Serial.print("I AM "); Serial.print(d, HEX); Serial.print(" I should be "); Serial.println(0x48, HEX);  
+        //Serial.print("AK8963 "); Serial.print("I AM "); Serial.print(d, HEX); Serial.print(" I should be "); Serial.println(0x48, HEX);  
       } 
     } else{
       if (SerialDebug==true){
-        Serial.println("AK8963 Magnetometer online");
+       // Serial.println("AK8963 Magnetometer online");
       }
     }
     initAK8963(magCalibration);
     if (SerialDebug==true){
-      Serial.println("AK8963 initialized for active data mode....");
+      //Serial.println("AK8963 initialized for active data mode....");
     }
     
   }
@@ -73,7 +76,8 @@ void GY91::begin(boolean debug){
   magCalibration[1]=1.19;
   magCalibration[2]=1.15;
 
-  if (SerialDebug==true){
+  /*
+   * if (SerialDebug==true){
     Serial.println("AK8963 mag biases (mG)"); Serial.println(magBias[0]); Serial.println(magBias[1]); Serial.println(magBias[2]); 
     Serial.println("AK8963 mag scale (mG)"); Serial.println(magScale[0]); Serial.println(magScale[1]); Serial.println(magScale[2]); 
     
@@ -81,6 +85,8 @@ void GY91::begin(boolean debug){
     Serial.print("Y-Axis sensitivity adjustment value "); Serial.println(magCalibration[1], 2);
     Serial.print("Z-Axis sensitivity adjustment value "); Serial.println(magCalibration[2], 2);
   }
+  
+   */
 }
 
 void GY91::update(){
@@ -128,7 +134,8 @@ void GY91::update(){
     delt_t = millis() - count;
 
     if (SerialDebug==true){
-    Serial.print("ax = "); Serial.print((int)1000*ax);  
+    /*
+     * Serial.print("ax = "); Serial.print((int)1000*ax);  
     Serial.print(" ay = "); Serial.print((int)1000*ay); 
     Serial.print(" az = "); Serial.print((int)1000*az); Serial.println(" mg");
     Serial.print("gx = "); Serial.print( gx, 2); 
@@ -142,6 +149,8 @@ void GY91::update(){
     Serial.print(" qx = "); Serial.print(q[1]); 
     Serial.print(" qy = "); Serial.print(q[2]); 
     Serial.print(" qz = "); Serial.println(q[3]); 
+    
+     */
   }
     // Define output variables from updated quaternion---these are Tait-Bryan angles, commonly used in aircraft orientation.
   // In this coordinate system, the positive z-axis is down toward Earth. 
@@ -178,7 +187,8 @@ void GY91::update(){
     lin_ay = ay + a32;
     lin_az = az - a33;
     if(SerialDebug) {
-    Serial.print("Yaw, Pitch, Roll: ");
+    /*
+     * Serial.print("Yaw, Pitch, Roll: ");
     Serial.print(yaw, 2);
     Serial.print(", ");
     Serial.print(pitch, 2);
@@ -199,6 +209,8 @@ void GY91::update(){
     Serial.print(lin_az*1000, 2);  Serial.println(" mg");
     
     Serial.print("rate = "); Serial.print((float)sumCount/sum, 2); Serial.println(" Hz");
+    
+     */
     }
   
 }
@@ -208,7 +220,7 @@ void GY91::magcalMPU9250(float * dest1, float * dest2)
   int32_t mag_bias[3] = {0, 0, 0}, mag_scale[3] = {0, 0, 0};
   int16_t mag_max[3] = {-32767, -32767, -32767}, mag_min[3] = {32767, 32767, 32767}, mag_temp[3] = {0, 0, 0};
 
-  Serial.println("Mag Calibration: Wave device in a figure eight until done!");
+  //Serial.println("Mag Calibration: Wave device in a figure eight until done!");
   delay(4000);
   
     // shoot for ~fifteen seconds of mag data
@@ -249,7 +261,7 @@ void GY91::magcalMPU9250(float * dest1, float * dest2)
     dest2[1] = avg_rad/((float)mag_scale[1]);
     dest2[2] = avg_rad/((float)mag_scale[2]);
   
-   Serial.println("Mag Calibration done!");
+   //Serial.println("Mag Calibration done!");
 }
 void GY91::readMPU9250Data(int16_t * destination)
 {
